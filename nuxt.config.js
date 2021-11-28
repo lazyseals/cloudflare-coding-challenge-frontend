@@ -25,10 +25,7 @@ export default {
   modules: ["@nuxtjs/axios", "nuxt-lazy-load", "nuxt-client-init-module"],
 
   axios: {
-    baseUrl:
-      process.env.NODE_ENV === "production"
-        ? "https://backend.danielvonmirbach.workers.dev"
-        : "http://localhost:8787",
+    baseUrl: "https://backend.danielvonmirbach.workers.dev",
   },
 
   googleFonts: {
