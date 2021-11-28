@@ -181,10 +181,7 @@ export default class CreatePostModal extends Vue {
   }
 
   get images() {
-    const baseUrl =
-      process.env.NODE_ENV === "production"
-        ? "https://cloudflare-coding-challenge-frontend.pages.dev/"
-        : "http://localhost:3000";
+    const baseUrl = "https://cloudflare-coding-challenge-frontend.pages.dev/";
     return [
       { src: `${baseUrl}/images/computer.jpg`, alt: "Computer" },
       { src: `${baseUrl}/images/man.jpg`, alt: "Man" },

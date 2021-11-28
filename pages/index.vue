@@ -9,7 +9,11 @@
         <div class="card-body">
           <h2 class="card-title mb-0">{{ post.title }}</h2>
           <figure v-if="post.image" class="w-full py-4">
-            <img :src="post.image" alt="Post Image" class="rounded-xl" />
+            <img
+              :src="getImgSrc(post.image)"
+              alt="Post Image"
+              class="rounded-xl"
+            />
           </figure>
           <p v-else class="py-4">{{ post.content }}.</p>
           <div class="flex justify-between content-center">
@@ -65,6 +69,12 @@ export default class LandingPage extends Vue {
   get error() {
     const error = this.$store.getters.error;
     return error;
+  }
+
+  getImgSrc(src: string) {
+    const split = src.split("http://localhost:3000/");
+    if (split.length === 1) return src;
+    return "https://cloudflare-coding-challenge-frontend.pages.dev/" + split[1];
   }
 
   async onVote(id: string) {
