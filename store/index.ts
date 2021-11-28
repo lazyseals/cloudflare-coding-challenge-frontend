@@ -31,6 +31,12 @@ export const mutations: MutationTree<RootState> = {
     state.error = null;
   },
 
+  votePost(state, id: string) {
+    if (state.posts == null) return;
+    const post = state.posts.find((post) => post.id === id);
+    if (post) post.votes += 1;
+  },
+
   setError(state, error: string | null) {
     state.error = error;
     state.posts = null;

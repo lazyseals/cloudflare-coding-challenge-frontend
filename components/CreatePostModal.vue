@@ -28,6 +28,22 @@
             </svg>
           </button>
         </div>
+        <div class="tabs tabs-boxed mb-4">
+          <button
+            class="tab"
+            :class="{ 'tab-active': activeTab === 'Text' }"
+            @click="activeTab = 'Text'"
+          >
+            Text Post
+          </button>
+          <button
+            class="tab"
+            :class="{ 'tab-active': activeTab === 'Image' }"
+            @click="activeTab = 'Image'"
+          >
+            Image Post
+          </button>
+        </div>
         <form role="form" @submit.prevent="!invalid && onPost()">
           <base-input
             v-model="title"
@@ -47,7 +63,7 @@
             :rules="[{ required: true }]"
             @invalid="usernameInvalid = $event"
           />
-          <div class="form-control">
+          <div v-if="activeTab === 'Text'" class="form-control">
             <label class="label">
               <span class="label-text">Content</span>
             </label>
@@ -56,6 +72,31 @@
               class="textarea h-24 textarea-bordered"
               placeholder="Content"
             ></textarea>
+          </div>
+          <div v-if="activeTab === 'Image'" class="form-control">
+            <label class="label">
+              <span class="label-text font-bold">Content</span>
+            </label>
+          </div>
+          <div v-if="activeTab === 'Image'" class="flex flex-row flex-wrap">
+            <div v-for="(img, i) of images" :key="img.src" class="w-1/3">
+              <figure
+                class="mb-1 w-full"
+                :class="{
+                  'pr-1': i % 3 === 0,
+                  'px-1': i % 3 === 1,
+                  'pl-1': i % 3 === 2,
+                }"
+              >
+                <img :src="img.src" :alt="img.alt" class="rounded-xl" />
+              </figure>
+              <input
+                type="checkbox"
+                :checked="isImgChecked(img)"
+                class="checkbox"
+                @click="onSelectImg(img)"
+              />
+            </div>
           </div>
         </form>
         <div v-if="errorMessage" class="alert alert-error mt-6">
@@ -97,6 +138,7 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "nuxt-property-decorator";
 import BaseInput from "~/components/BaseInput.vue";
 import { handleError } from "~/utils/errorHandler";
+import { Post } from "~/types/post";
 
 @Component({
   components: { BaseInput },
@@ -109,6 +151,8 @@ export default class CreatePostModal extends Vue {
   titleInvalid = true;
   usernameInvalid = true;
   errorMessage: string | null = null;
+  activeTab: "Text" | "Image" = "Text";
+  selectedImg: { src: string; alt: string } | null = null;
 
   @Prop({
     type: Boolean,
@@ -125,14 +169,40 @@ export default class CreatePostModal extends Vue {
     return (
       this.titleInvalid ||
       this.usernameInvalid ||
-      this.content == null ||
-      this.content.length <= 0
+      (this.activeTab === "Text" &&
+        (this.content == null || this.content.length <= 0)) ||
+      (this.activeTab === "Image" && this.selectedImg == null)
     );
   }
 
   get posts() {
     const posts = this.$store.getters.posts;
     return posts;
+  }
+
+  get images() {
+    const baseUrl =
+      process.env.NODE_ENV === "production" ? "TODO" : "http://localhost:3000";
+    return [
+      { src: `${baseUrl}/images/computer.jpg`, alt: "Computer" },
+      { src: `${baseUrl}/images/man.jpg`, alt: "Man" },
+      { src: `${baseUrl}/images/monkeys.jpg`, alt: "Monkeys" },
+      { src: `${baseUrl}/images/mountains.jpg`, alt: "Mountains" },
+      { src: `${baseUrl}/images/think.jpg`, alt: "Think" },
+      { src: `${baseUrl}/images/travel.jpg`, alt: "Travel" },
+    ];
+  }
+
+  onSelectImg(img: { src: string; alt: string }) {
+    if (this.isImgChecked(img)) {
+      this.selectedImg = null;
+    } else {
+      this.selectedImg = { ...img };
+    }
+  }
+
+  isImgChecked(img: { src: string; alt: string }) {
+    return this.selectedImg?.src === img.src;
   }
 
   onOpen() {
@@ -161,13 +231,19 @@ export default class CreatePostModal extends Vue {
   }
 
   async onPost() {
-    if (!this.title || !this.username || !this.content) return;
+    if (!this.title || !this.username) return;
+    else if (this.activeTab === "Text" && !this.content) return;
+    else if (this.activeTab === "Image" && !this.selectedImg) return;
+
     try {
       this.isLoading = true;
-      const post = {
+      const post: Partial<Post> = {
         title: this.title,
         username: this.username,
-        content: this.content,
+        content: this.content ?? "",
+        votes: 0,
+        type: this.activeTab,
+        image: this.selectedImg != null ? this.selectedImg.src : null,
       };
       await this.$axios.$post(
         "posts",
