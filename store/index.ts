@@ -44,12 +44,10 @@ export const mutations: MutationTree<RootState> = {
 };
 
 export const actions: ActionTree<RootState, RootState> = {
-  nuxtServerInit:
-    process.server && !process.static
-      ? async function ({ dispatch }) {
-          await dispatch("fetchPosts");
-        }
-      : () => {},
+  async nuxtClientInit({ dispatch }) {
+    console.log("Client init");
+    await dispatch("fetchPosts");
+  },
 
   async fetchPosts({ commit }) {
     try {

@@ -2,8 +2,8 @@
   <div class="mx-auto max-w-7xl p-6">
     <template v-if="posts && posts.length > 0">
       <div
-        v-for="post in posts"
-        :key="post.title"
+        v-for="(post, i) in posts"
+        :key="post.title + i"
         class="card bordered mx-auto max-w-xl mb-4"
       >
         <div class="card-body">

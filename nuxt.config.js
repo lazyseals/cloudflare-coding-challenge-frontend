@@ -2,6 +2,8 @@ import { getMetadata } from "./services/metadata";
 import { title, metaDescription, author } from "./utils/constants";
 
 export default {
+  ssr: false,
+
   head: getMetadata(),
 
   modern: true,
@@ -20,7 +22,7 @@ export default {
     "@nuxtjs/pwa",
   ],
 
-  modules: ["@nuxtjs/axios", "nuxt-lazy-load"],
+  modules: ["@nuxtjs/axios", "nuxt-lazy-load", "nuxt-client-init-module"],
 
   axios: {
     baseUrl:
